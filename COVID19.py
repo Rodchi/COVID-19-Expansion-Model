@@ -10,6 +10,9 @@ from numpy import *
 from matplotlib.pyplot import *
 import matplotlib.pyplot as plt
 from matplotlib import pyplot as plt
+import numpy as np
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 
 # ----------------------------------------------------
 # This is a simple model of the COVID-19 affectation in Mexico
@@ -19,41 +22,45 @@ from matplotlib import pyplot as plt
 #
 # Nd = cases in a given day
 # E = Average of people and infected is exposed each day
-# P = probability of a healthy person to get infected
+# p = probability of a healthy person to get infected
 # C = contant of proporcionality
 # d = number of days the decease
 #
+#Data regresion method obtain from https://stackoverflow.com/questions/50706092/exponential-regression-function-python
 # --------------------------------------------------
 font = {'family': 'serif',
-        'color':  'red',
+        'color': 'red',
         'weight': 'normal',
         'size': 10,
         }
 font2 = {'family': 'serif',
-        'color':  'blue',
-        'weight': 'normal',
-        'size': 10,
-        }
+         'color': 'blue',
+         'weight': 'normal',
+         'size': 10,
+         }
 font3 = {'family': 'serif',
-        'color':  'black',
-        'weight': 'normal',
-        'size': 10,
-        }
+         'color': 'black',
+         'weight': 'normal',
+         'size': 10,
+         }
 font4 = {'family': 'serif',
-        'color':  'black',
-        'weight': 'bold',
-        'size': 8.5,
-        }
+         'color': 'black',
+         'weight': 'bold',
+         'size': 8.5,
+         }
 font5 = {'family': 'serif',
-        'color':  'black',
-        'weight': 'bold',
-        'size': 10,
-        }
-#========================Real data=============================
-quantity_of_infected=[0,1,2,4,5,6,7,11,15,26,41,53,82,91,93,108] #number of infected
-days_elapse=[0,1,2,3,4,9,10,14,15,16,17,18,19,20,21,22] #days elapsed from day 0
+         'color': 'black',
+         'weight': 'bold',
+         'size': 10,
+         }
+# ========================Real data=============================
+quantity_of_infected = [0, 1, 2, 4, 5, 6, 7, 11, 15, 26, 41, 53, 82, 91, 93, 108]  # number of infected
+days_elapse = [0, 1, 2, 3, 4, 9, 10, 14, 15, 16, 17, 18, 19, 20, 21, 22]  # days elapsed from day 0
 
-
+y_data=np.array([0,1,2,4,5,6,7,11,15,26,41,53,82,91,93,108]) #number of infected
+x_data=np.array([0,1,2,3,4,9,10,14,15,16,17,18,19,20,21,22])#days elapsed from day 0
+# =======================Function definition===========================#
+# =================Model Functions========
 def nd_n(N_0, Ep, d):
     n_given_day = ((1 + Ep) ** d) * N_0
     # print(n_given_day)
@@ -61,16 +68,17 @@ def nd_n(N_0, Ep, d):
     ndn = ((1 + Ep) * n_given_day)
     print(ndn)
 
+
 def n_d(N_0, Ep, d):
     nd = N_0 * (1 + Ep) ** d;
     nd = round(nd)
     return nd;
 
-def plotting(N_0,Ep,d):
+
+def plotting(N_0, Ep, d):
     if d == 0:
         print('The Maximum Number of Cases is : 0')
         print('In ', d, ' days since day 0')
-
 
         # ===========================================================================
         # ================================PLOT PART==================================
@@ -92,8 +100,8 @@ def plotting(N_0,Ep,d):
                  fontdict=font3)
         plt.text(0.1, 0.65, "Blue squares are real data",
                  fontdict=font2)
-       #plt.plot(x_Axis, y_Axis, 'r', r, t, 'bs')  # PLOTTING DATA
-        plt.text(0.1, 0.55, "E: Average of people and infected is exposed each day ",
+        # plt.plot(x_Axis, y_Axis, 'r', r, t, 'bs')  # PLOTTING DATA
+        plt.text(0.1, 0.55, "Ep: Average of people and infected is exposed each day times probability of get infected",
                  fontdict=font4)
         plt.text(0.1, 0.45, "Nd = Number of cases on a given day",
                  fontdict=font4)
@@ -134,64 +142,108 @@ def plotting(N_0,Ep,d):
         plt.grid(True)
 
         # ====================Texts===================
-        plt.text(0*(xmax), 0.9*(ymax), "Red is the math model",
+        plt.text(0 * (xmax), 0.9 * (ymax), "Red is the math model",
                  fontdict=font)
-        plt.text(0.50*(xmax), 0.82*(ymax), r'$Nd_1 = (1 +E*p)*Nd$',
+        plt.text(0.50 * (xmax), 0.82 * (ymax), r'$Nd_1 = (1 +E*p)*Nd$',
                  fontdict=font3)
-        plt.text(0.45*(xmax), 0.75*(ymax), "Where ",
+        plt.text(0.45 * (xmax), 0.75 * (ymax), "Where ",
                  fontdict=font3, )
-        plt.text(0.550*(xmax), 0.75*(ymax), r'$Nd = ((1+E*p)^d)*N_0$',
+        plt.text(0.550 * (xmax), 0.75 * (ymax), r'$Nd = ((1+E*p)^d)*N_0$',
                  fontdict=font3)
-        plt.text(0, 0.75*(ymax), "Blue squares are real data",
+        plt.text(0, 0.75 * (ymax), "Blue squares are real data",
                  fontdict=font2)
-        plt.text(0, 0.65*(ymax), "E =",
+        plt.text(0, 0.65 * (ymax), "E =",
                  fontdict=font4)
-        plt.text(0.03*(xmax), 0.65 * (ymax), Ep,
+        plt.text(0.03 * (xmax), 0.65 * (ymax), Ep,
                  fontdict=font4)
-        plt.text(0*(xmax),0.55*(ymax), "N_0 = ",
+        plt.text(0 * (xmax), 0.55 * (ymax), "N_0 = ",
                  fontdict=font4)
-        plt.text(0.07*(xmax), 0.55*(ymax), N_0,
+        plt.text(0.07 * (xmax), 0.55 * (ymax), N_0,
                  fontdict=font4)
-        plt.text(0*(xmax),0.45*(ymax), "d =",
+        plt.text(0 * (xmax), 0.45 * (ymax), "d =",
                  fontdict=font4)
-        plt.text(0.05*(xmax), 0.45*(ymax), d,
+        plt.text(0.05 * (xmax), 0.45 * (ymax), d,
                  fontdict=font4)
-        #max number of cases
+        # max number of cases
         plt.text(0.25 * (xmax), 0.55 * (ymax), "Max number of cases = ",
                  fontdict=font5)
-        plt.text(0.60* (xmax), 0.55 * (ymax), ymax,
+        plt.text(0.60 * (xmax), 0.55 * (ymax), ymax,
                  fontdict=font5)
 
         plt.plot(x_Axis, y_Axis, 'r', r, t, 'bs')  # PLOTTING DATA
 
-
         print('\n')
 
 
+# ===============Regresion Function=======================
+def func_exp(x, a, b, c):
+    c = 0
+    return a * np.exp(b * x) + c
 
 
+def exponential_regression(x_data, y_data):
+    popt, pcov = curve_fit(func_exp, x_data, y_data, p0=(-1, 0.01, 1))
+    print(popt)
+    puntos = plt.plot(x_data, y_data, 'x', color='xkcd:maroon', label="Real Cases")
+    curva_regresion = plt.plot(x_data, func_exp(x_data, *popt), color='xkcd:teal',
+                               label="Coeficients: {:.3f}, {:.3f}, {:.3f}".format(*popt))
+    plt.ylabel('Numer of cases (N)')
+    plt.xlabel('Time (Days)')
+    xmax = max(x_data)
+    ymax = max(y_data)
+    plt.text(0.1 * (xmax), 0.73 * (ymax), "Model Equation",
+             fontdict=font3)
+    plt.text(0.1 * (xmax), 0.63 * (ymax), r'$Nd = (a*e^(bx))+c$',
+             fontdict=font3)
+    plt.grid(True)
+    plt.legend()
+    #plt.show()
+    #print(popt[1])
+    return func_exp(x_data, *popt)
 
-Ep1= 0.297;
+def dataestimation(desiredTimeinDays):
+    a=1.12389
+    b=0.2117
+    c=1
+    realdata =[]
+    x_data2 = np.arange(0, desiredTimeinDays, 1)
+    for i in range(0, desiredTimeinDays, 1):
+        temp=a * e ** (b * x_data2[i]) + c
+        realdata.append(temp)
+    plot(x_data2,realdata)
+    xmax = max(x_data)
+    ymax = max(realdata)
+    plt.text(0.1 * (xmax), 0.73 * (ymax), "Model Equation",
+             fontdict=font3)
+    plt.text(0.1 * (xmax), 0.63 * (ymax), r'$Nd = (a*e^(bx))+c$',
+             fontdict=font3)
+    plt.ylabel('Numer of cases (N)')
+    plt.xlabel('Time (Days)')
+    #print(vectora[1]);
+# =====================================End of functions============================================
+Ep1 = 0.297;
 Ep2 = 0.307;
 Ep3 = 0.287;
 N_0 = 0.77;
-d = 30;
+d = 45;
 
-suptitle('Expectations for COVID-19 MXN ')
-plt.subplot(2,2,1)
+days=str(d);
+suptitle('Expectations for COVID-19 MXN For ' + days +'days')
+plt.subplot(2, 2, 1)
 plotting(N_0, Ep1, 0)
-plt.subplot(2,2,2)
+plt.subplot(2, 2, 2)
 plotting(N_0, Ep1, d)
-plt.subplot(2,2,3)
+plt.subplot(2, 2, 3)
 plotting(N_0, Ep2, d)
-plt.subplot(2,2,4)
+plt.subplot(2, 2, 4)
 plotting(N_0, Ep3, d)
+
 show()
-#plt.subplot(421)
-#plotting(d)
-#plt.subplot(412)
-#plotting(45)
-#subplot(422)
-#plotting(60)
-#plt.show()
+suptitle('Expectations for COVID-19 MXN For ' + days +' days')
+plt.subplot(2, 1, 1)
+coeficients=exponential_regression(x_data, y_data)
+print(coeficients[0])
+plt.subplot(2, 1, 2)
+dataestimation(d)
+show()
 

@@ -1,6 +1,7 @@
 import math
 from tkinter import font
-
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import *
 from matplotlib.pyplot import *
@@ -185,11 +186,68 @@ d = 30;
 
 
 #plotting(d)
-plt.subplot(221)
-plotting(d)
-plt.subplot(222)
-plotting(40)
-plt.show()
+#plt.subplot(221)
+#plotting(d)
+#plt.subplot(222)
+#plotting(40)
+#plt.show()
+
+def func_exp(x, a, b, c):
+    c = 0
+    return a * np.exp(b * x) + c
+
+
+def exponential_regression(x_data, y_data):
+    popt, pcov = curve_fit(func_exp, x_data, y_data, p0=(-1, 0.01, 1))
+    print(popt)
+    puntos = plt.plot(x_data, y_data, 'x', color='xkcd:maroon', label="Real Cases")
+    curva_regresion = plt.plot(x_data, func_exp(x_data, *popt), color='xkcd:teal',
+                               label="Coeficients: {:.3f}, {:.3f}, {:.3f}".format(*popt))
+    plt.ylabel('Numer of cases (N)')
+    plt.xlabel('Time (Days)')
+    xmax = max(x_data)
+    ymax = max(y_data)
+    plt.text(0.1 * (xmax), 0.73 * (ymax), "Model Equation",
+             fontdict=font3)
+    plt.text(0.1 * (xmax), 0.63 * (ymax), r'$Nd = (a*e^(bx))+c$',
+             fontdict=font3)
+    plt.grid(True)
+    plt.legend()
+    #plt.show()
+    #print(popt[1])
+    return func_exp(x_data, *popt)
+
+def dataestimation(desiredTimeinDays):
+    a=1.12389
+    b=0.2117
+    c=1
+    realdata =[]
+    x_data2 = np.arange(0, desiredTimeinDays, 1)
+    for i in range(0, desiredTimeinDays, 1):
+        temp=a * e ** (b * x_data2[i]) + c
+        realdata.append(temp)
+    plot(x_data2,realdata)
+    xmax = max(x_data)
+    ymax = max(realdata)
+    plt.text(0.1 * (xmax), 0.73 * (ymax), "Model Equation",
+             fontdict=font3)
+    plt.text(0.1 * (xmax), 0.63 * (ymax), r'$Nd = (a*e^(bx))+c$',
+             fontdict=font3)
+    plt.ylabel('Numer of cases (N)')
+    plt.xlabel('Time (Days)')
+    #print(vectora[1]);
 
 
 
+y_data=np.array([0,1,2,4,5,6,7,11,15,26,41,53,82,91,93,108]) #number of infected
+x_data=np.array([0,1,2,3,4,9,10,14,15,16,17,18,19,20,21,22])#days elapsed from day 0
+
+
+
+suptitle('Expectations for COVID-19 MXN ')
+plt.subplot(2, 1, 1)
+coeficients=exponential_regression(x_data, y_data)
+print(coeficients[0])
+plt.subplot(2, 1, 2)
+dataestimation(30)
+show()
