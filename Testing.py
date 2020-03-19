@@ -71,6 +71,25 @@ def ndplus1(E, p):
         ndn = ((1 + E * p) ** d) * nd1
         print('temp mayor a 16')
         print(ndn)
+def nd_n(N_0, Ep, d):
+    n_given_day = ((1 + Ep) ** d) * N_0
+    # print(n_given_day)
+    # print('------------------')
+    ndn = ((1 + Ep) * n_given_day)
+    print(ndn)
+
+# def n_d(N_0, Ep, d):
+#   temp = 1
+#   for i in range(0, d, 1):
+#       nd = N_0 * (1 + Ep) ** temp
+#       nd=round(nd)
+#        temp = temp + 1
+# print(nd)
+
+def n_d(N_0, Ep, d):
+    nd = N_0 * (1 + Ep) ** d;
+    nd = round(nd)
+    return nd;
 
 
 def nd_n(N_0, Ep, d):
@@ -117,7 +136,7 @@ def plotting(d):
     t = np.array(quantity_of_infected)
     r = np.array(days_elapse)
     ymax = max(y_Axis)
-    print(ymax)
+    #print(ymax)
     xmax = max(x_Axis)
     plt.title('Predictive Exponential Model COVID-19 MXN')
     plt.ylabel('Numer of cases (N)')
@@ -142,7 +161,7 @@ def plotting(d):
              fontdict=font4)
     plt.text(0, 800, "d = number of days the decease",
              fontdict=font4)
-    plt.show()
+    print('\n')
 
 
 
@@ -164,6 +183,13 @@ Ep = 0.297;
 N_0 = 0.77;
 d = 30;
 
+
+#plotting(d)
+plt.subplot(221)
 plotting(d)
-plotting(50)
+plt.subplot(222)
+plotting(40)
+plt.show()
+
+
 
